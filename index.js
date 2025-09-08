@@ -1,28 +1,33 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 
-// Create a new bot client
+// Get token either from CLI argument or .env
+const token = process.argv[2] || process.env.BOT_TOKEN;
+
+if (!token) {
+  console.error("❌ No bot token provided! Use: node index.js <BOT_TOKEN>");
+  process.exit(1);
+}
+
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds, // for slash commands
-    GatewayIntentBits.GuildMessages, // for reading messages
-    GatewayIntentBits.MessageContent // needed if you want to read message text
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
   ],
 });
 
-// When the bot is ready
 client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-// Simple message listener
 client.on('messageCreate', (message) => {
-  if (message.author.bot) return; // ignore bots
+  if (message.author.bot) return;
 
   if (message.content === '!ping') {
     message.reply('Pong! 🏓');
   }
 });
 
-// Login using token from .env
-client.login(process.env.BOT_TOKEN);
+// Login using the token
+client.login(token);
