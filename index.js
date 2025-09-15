@@ -38,6 +38,17 @@ const KO_FI_LINK = 'https://ko-fi.com/asanders';
 const PATREON_LINK = 'https://www.patreon.com/refugestudios';
 const SUPPORTERS_CHANNEL_ID = '1398892513300975697';
 
+const TF_CHANNEL0_GENERAL = '1414160528774922293'; // VSH
+const TF_CHANNEL1_GENERAL = '1414160473389006848'; // HighTower
+const MC_CHANNEL0_GENERAL = '1414156803528462399'; // Minecraft
+
+const ACTIVE_ROLE_ID = '1353720821792899182'; // @active players
+
+let MCAlertSent0 = false; // tracks if we've pinged
+let TFAlertSent0 = false; // tracks if we've pinged
+let TFAlertSent1 = false; // tracks if we've pinged
+
+
 async function sendSupportEmbeds(client, message = null) {
   try {
     const channel = message ? message.channel : await client.channels.fetch(SUPPORTERS_CHANNEL_ID); 
@@ -158,15 +169,17 @@ const commands = {
 
 
 // --- Fetch Minecraft status ---
-async function fetchMinecraftStatus() {
+async function fetchMinecraftStatus(channel) {
   try {
     const rcon = new Rcon(MINECRAFT_RCON);
     await rcon.connect();
     const response = await rcon.send('list');
     await rcon.end();
 
-    const match = response.match(/players:\s?(.*)/i);
-    const players = match && match[1] ? match[1].split(',').map(p => p.trim()) : [];
+    const match = response.match(/There are (\d+) of a max (\d+) players online: ?(.*)/i);
+    const playerCount = match ? parseInt(match[1], 10) : 0;
+    const maxPlayers = match ? parseInt(match[2], 10) : 0;
+    const players = match && match[3] ? match[3].split(',').map(p => p.trim()).filter(p => p.length > 0) : [];
 
     const hostname = 'IssariCraft';
 
@@ -175,14 +188,31 @@ async function fetchMinecraftStatus() {
     const embed = new EmbedBuilder()
       .setTitle(hostname)
       .setColor('#1abc9c')
-      .setThumbnail(ImageURL) // small image on the side
+      .setThumbnail(ImageURL)
       .addFields(
         { name: 'Server IP', value: MINECRAFT_RCON.host, inline: true },
-        { name: 'Total Players', value: `${players.length}`, inline: true },
+        { name: 'Total Players', value: `${playerCount} / ${maxPlayers}`, inline: true },
         { name: 'Players Online', value: players.length ? players.join(', ') : 'No one online', inline: false }
       )
       .setTimestamp()
       .setFooter(BOT_FOOTER);
+
+    // Ping our players
+    if (channel) {
+      if (players.length >= 3 && !MCAlertSent0) {
+        // Ping once
+        await channel.send({
+          content: `<@&${ACTIVE_ROLE_ID}>`, // this pings the role
+          embeds: [embed],
+          allowedMentions: { roles: [ACTIVE_ROLE_ID] }, // explicitly allow pinging this role
+        });
+        
+        MCAlertSent0 = true; // mark that we've pinged
+      } else if (players.length < 5 && MCAlertSent0) {
+        // Reset alert flag once players drop below threshold
+        MCAlertSent0 = false;
+      }
+    }
 
     return embed;
   } catch (err) {
@@ -196,7 +226,7 @@ async function fetchMinecraftStatus() {
   }
 }
 
-async function fetchTF2Status() {
+async function fetchTF2Status(channel) {
   try {
     const rcon = new Rcon(TF_RCON0);
     await rcon.connect();
@@ -204,8 +234,17 @@ async function fetchTF2Status() {
     await rcon.end();
 
     // --- Parse players ---
-    const playerLines = response.split('\n').filter(line => line.match(/^\#\s\d/));
-    const players = playerLines.map(line => line.split(' ')[2]);
+    const playerLines = response
+      .split('\n')
+      .filter(line => /^#\s+\d+/.test(line)); // only actual player rows
+
+    const players = playerLines.map(line => {
+      // Collapse multiple spaces into one
+      const parts = line.trim().split(/\s+/);
+      // name is wrapped in quotes (always parts[2])
+      const name = parts[2].replace(/^"|"$/g, '');
+      return name;
+    });
 
     // --- Parse hostname ---
     // Example: 'hostname: Issari.TF FREE SEX'
@@ -235,6 +274,23 @@ async function fetchTF2Status() {
       .setTimestamp()
       .setFooter(BOT_FOOTER);
 
+    // Ping our players
+    if (channel) {
+      if (players.length >= 5 && !TFAlertSent0) {
+        // Ping once
+        await channel.send({
+          content: `<@&${ACTIVE_ROLE_ID}>`, // this pings the role
+          embeds: [embed],
+          allowedMentions: { roles: [ACTIVE_ROLE_ID] }, // explicitly allow pinging this role
+        });
+
+        TFAlertSent0 = true; // mark that we've pinged
+      } else if (players.length < 5 && TFAlertSent0) {
+        // Reset alert flag once players drop below threshold
+        TFAlertSent0 = false;
+      }
+    }
+
     return embed;
 
   } catch (err) {
@@ -248,7 +304,7 @@ async function fetchTF2Status() {
   }
 }
 
-async function fetchTF2Status2() {
+async function fetchTF2Status2(channel) {
   try {
     const rcon = new Rcon(TF_RCON1);
     await rcon.connect();
@@ -256,8 +312,17 @@ async function fetchTF2Status2() {
     await rcon.end();
 
     // --- Parse players ---
-    const playerLines = response.split('\n').filter(line => line.match(/^\#\s\d/));
-    const players = playerLines.map(line => line.split(' ')[2]);
+    const playerLines = response
+      .split('\n')
+      .filter(line => /^#\s+\d+/.test(line)); // only actual player rows
+
+    const players = playerLines.map(line => {
+      // Collapse multiple spaces into one
+      const parts = line.trim().split(/\s+/);
+      // name is wrapped in quotes (always parts[2])
+      const name = parts[2].replace(/^"|"$/g, '');
+      return name;
+    });
 
     // --- Parse hostname ---
     // Example: 'hostname: Issari.TF FREE SEX'
@@ -286,6 +351,23 @@ async function fetchTF2Status2() {
       )
       .setTimestamp()
       .setFooter(BOT_FOOTER);
+    
+    // Ping our players
+    if (channel) {
+      if (players.length >= 5 && !TFAlertSent1) {
+        // Ping once
+        await channel.send({
+          content: `<@&${ACTIVE_ROLE_ID}>`, // this pings the role
+          embeds: [embed],
+          allowedMentions: { roles: [ACTIVE_ROLE_ID] }, // explicitly allow pinging this role
+        });
+
+        TFAlertSent1 = true; // mark that we've pinged
+      } else if (players.length < 5 && TFAlertSent1) {
+        // Reset alert flag once players drop below threshold
+        TFAlertSent1 = false;
+      }
+    }
 
     return embed;
 
@@ -319,19 +401,22 @@ client.once('ready', async () => {
 
   // Refresh Minecraft embed
   setInterval(async () => {
-    const updatedMCEmbed = await fetchMinecraftStatus();
+    const alertChannel = await client.channels.fetch(MC_CHANNEL0_GENERAL);
+    const updatedMCEmbed = await fetchMinecraftStatus(alertChannel);
     await mcMessage.edit({ embeds: [updatedMCEmbed] });
   }, REFRESH_INTERVAL);
 
   // Refresh TF2 embed
   setInterval(async () => {
-    const updatedTF2Embed = await fetchTF2Status();
+    const alertChannel = await client.channels.fetch(TF_CHANNEL1_GENERAL);
+    const updatedTF2Embed = await fetchTF2Status(alertChannel);
     await tf2Message.edit({ embeds: [updatedTF2Embed] });
   }, REFRESH_INTERVAL);
 
   // Refresh TF2 embed
   setInterval(async () => {
-    const updatedTF2Embed = await fetchTF2Status2();
+    const alertChannel = await client.channels.fetch(TF_CHANNEL0_GENERAL);
+    const updatedTF2Embed = await fetchTF2Status2(alertChannel);
     await tf2Message1.edit({ embeds: [updatedTF2Embed] });
   }, REFRESH_INTERVAL);
 });
