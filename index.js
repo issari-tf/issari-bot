@@ -1,6 +1,7 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, EmbedBuilder,  ActionRowBuilder, ButtonBuilder, ButtonStyle } = require("discord.js");
+const { Client, GatewayIntentBits, EmbedBuilder } = require("discord.js");
 const { Rcon } = require('rcon-client');
+const { status } = require('minecraft-server-util');
 
 const client = new Client({
   intents: [
@@ -27,6 +28,9 @@ const TF_RCON1 = {
   port:     process.env.TF_RCON_PORT1,
   password: process.env.TF_RCON_PASS1,
 };
+
+const SERVER_HOST = process.env.MC_HOST || MINECRAFT_RCON.host;
+const SERVER_PORT = parseInt(process.env.MC_PORT || 25565, 10);
 
 // --- Configuration ---
 // Discord config
@@ -167,64 +171,107 @@ const commands = {
   },
 };
 
-
-// --- Fetch Minecraft status ---
+// --- Fetch Minecraft Status ---
 async function fetchMinecraftStatus(channel) {
+  const hostname = 'IssariCraft';
+  const imageURL = `https://cdn.mos.cms.futurecdn.net/Ch792iXiTjNCPVniby9aG9.jpg`;
+
+  let playerCount = 0;
+  let maxPlayers = 0;
+  let players = [];
+
+  console.log('[Minecraft] Fetching server status...');
+
   try {
+    // --- Try using RCON ---
+    console.log('[Minecraft] Connecting via RCON:', MINECRAFT_RCON);
     const rcon = new Rcon(MINECRAFT_RCON);
     await rcon.connect();
+    console.log('[Minecraft] RCON connected.');
+
     const response = await rcon.send('list');
+    console.log('[Minecraft] RCON response:', response);
+
     await rcon.end();
+    console.log('[Minecraft] RCON connection closed.');
 
-    const match = response.match(/There are (\d+) of a max (\d+) players online: ?(.*)/i);
-    const playerCount = match ? parseInt(match[1], 10) : 0;
-    const maxPlayers = match ? parseInt(match[2], 10) : 0;
-    const players = match && match[3] ? match[3].split(',').map(p => p.trim()).filter(p => p.length > 0) : [];
+    const match = response.match(/There are (\d+) of a max(?: of)? (\d+) players online: ?(.*)/i);
 
-    const hostname = 'IssariCraft';
+    if (match) {
+      playerCount = parseInt(match[1], 10);
+      maxPlayers = parseInt(match[2], 10);
+      players = match[3]
+        ? match[3].split(',').map(p => p.trim()).filter(p => p.length > 0)
+        : [];
 
-    const ImageURL = `https://cdn.mos.cms.futurecdn.net/Ch792iXiTjNCPVniby9aG9.jpg`;
-
-    const embed = new EmbedBuilder()
-      .setTitle(hostname)
-      .setColor('#1abc9c')
-      .setThumbnail(ImageURL)
-      .addFields(
-        { name: 'Server IP', value: MINECRAFT_RCON.host, inline: true },
-        { name: 'Total Players', value: `${playerCount} / ${maxPlayers}`, inline: true },
-        { name: 'Players Online', value: players.length ? players.join(', ') : 'No one online', inline: false }
-      )
-      .setTimestamp()
-      .setFooter(BOT_FOOTER);
-
-    // Ping our players
-    if (channel) {
-      if (players.length >= 3 && !MCAlertSent0) {
-        // Ping once
-        await channel.send({
-          content: `<@&${ACTIVE_ROLE_ID}>`, // this pings the role
-          embeds: [embed],
-          allowedMentions: { roles: [ACTIVE_ROLE_ID] }, // explicitly allow pinging this role
-        });
-        
-        MCAlertSent0 = true; // mark that we've pinged
-      } else if (players.length < 5 && MCAlertSent0) {
-        // Reset alert flag once players drop below threshold
-        MCAlertSent0 = false;
-      }
+      console.log(`[Minecraft] Parsed players: ${playerCount}/${maxPlayers}`);
+      console.log('[Minecraft] Player list:', players);
+    } else {
+      console.warn('[Minecraft] Could not parse RCON response.');
     }
 
-    return embed;
-  } catch (err) {
-    console.error('Minecraft RCON Error:', err);
-    return new EmbedBuilder()
-      .setTitle('❌ Minecraft Server Status')
-      .setColor('#e74c3c')
-      .setDescription('Could not fetch server status')
-      .setFooter(BOT_FOOTER)
-      .setTimestamp();
+  } catch (rconErr) {
+    console.warn('[Minecraft] ⚠️ RCON failed, falling back to ping:', rconErr.message);
+
+    // --- Fallback: query server via Ping API ---
+    try {
+      console.log(`[Minecraft] Pinging ${SERVER_HOST}:${SERVER_PORT}...`);
+      const result = await status(SERVER_HOST, SERVER_PORT, { timeout: 3000 });
+      console.log('[Minecraft] Ping response:', result);
+
+      playerCount = result.players.online;
+      maxPlayers = result.players.max;
+      players = result.players.sample
+        ? result.players.sample.map(p => p.name)
+        : [];
+
+      console.log(`[Minecraft] Parsed ping data: ${playerCount}/${maxPlayers}`);
+      console.log('[Minecraft] Player list:', players);
+    } catch (pingErr) {
+      console.error('[Minecraft] ❌ Ping failed:', pingErr.message);
+    }
   }
+
+  // --- Build embed ---
+  const embed = new EmbedBuilder()
+    .setTitle(hostname)
+    .setColor('#1abc9c')
+    .setThumbnail(imageURL)
+    .addFields(
+      { name: 'Server IP', value: `${SERVER_HOST}:${SERVER_PORT}`, inline: true },
+      { name: 'Total Players', value: `${playerCount} / ${maxPlayers}`, inline: true },
+      { name: 'Players Online', value: players.length ? players.join(', ') : 'No one online', inline: false }
+    )
+    .setTimestamp()
+    .setFooter(BOT_FOOTER);
+
+  console.log('[Minecraft] Embed ready:', {
+    playerCount,
+    maxPlayers,
+    players,
+  });
+
+  // --- Optional: Alert when active ---
+  if (channel) {
+    console.log('[Minecraft] Checking alert threshold...');
+    if (players.length >= 3 && !MCAlertSent0) {
+      console.log('[Minecraft] Triggering alert ping...');
+      await channel.send({
+        content: `<@&${ACTIVE_ROLE_ID}>`,
+        embeds: [embed],
+        allowedMentions: { roles: [ACTIVE_ROLE_ID] },
+      });
+      MCAlertSent0 = true;
+    } else if (players.length < 3 && MCAlertSent0) {
+      console.log('[Minecraft] Resetting alert flag...');
+      MCAlertSent0 = false;
+    }
+  }
+
+  console.log('[Minecraft] ✅ Status fetch complete.');
+  return embed;
 }
+
 
 async function fetchTF2Status(channel) {
   try {
