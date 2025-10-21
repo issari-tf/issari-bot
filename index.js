@@ -265,7 +265,7 @@ async function fetchTF2Status(channel) {
       .setColor('#1abc9c')
       .setThumbnail(mapImageURL) // small image on the side
       .addFields(
-        { name: 'Server IP', value: TF_RCON0.host, inline: true },
+        { name: 'Server IP', value: `${TF_RCON0.host}:${TF_RCON0.port}`, inline: true },
        // { name: 'Hostname', value: hostname, inline: true },
         { name: 'Current Map', value: mapName, inline: true },
         { name: 'Total Players', value: `${players.length} / 100`, inline: false },
@@ -343,7 +343,7 @@ async function fetchTF2Status2(channel) {
       .setColor('#1abc9c')
       .setThumbnail(mapImageURL) // small image on the side
       .addFields(
-        { name: 'Server IP', value: TF_RCON1.host, inline: true },
+        { name: 'Server IP', value: `${TF_RCON1.host}:${TF_RCON1.port}`, inline: true },
        // { name: 'Hostname', value: hostname, inline: true },
         { name: 'Current Map', value: mapName, inline: true },
         { name: 'Total Players', value: `${players.length} / 32`, inline: false },
