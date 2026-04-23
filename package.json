@@ -1,18 +1,26 @@
 {
   "name": "issari-bot",
-  "version": "1.0.0",
-  "description": "Discord Bot for monitoring Servers",
-  "main": "index.js",
+  "version": "1.1.0",
+  "description": "A Discord bot that monitors Minecraft & TF2 servers, maintains a hierarchical win/loss leaderboard, and sends scheduled role pings.",
+  "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "node --watch src/index.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/issari-tf/issari-bot.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "discord",
+    "bot",
+    "minecraft",
+    "team-fortress-2",
+    "leaderboard",
+    "rcon"
+  ],
+  "author": "Issari.TF",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
@@ -26,5 +34,8 @@
     "dotenv": "^17.2.2",
     "minecraft-server-util": "^5.4.4",
     "rcon-client": "^4.2.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
