@@ -1,0 +1,261 @@
+{
+  "Player1": [
+    "Player16",
+    "Player34",
+    "Player71"
+  ],
+  "Player2": [
+    "Player11",
+    "Player15",
+    "Player56",
+    "Player69",
+    "Player19"
+  ],
+  "Player3": [
+    "Player13"
+  ],
+  "Player4": [
+    "Player6",
+    "Player8",
+    "Player40"
+  ],
+  "Player5": [
+    "Player7",
+    "Player12",
+    "Player27",
+    "Player39",
+    "Player48"
+  ],
+  "Player6": [],
+  "Player7": [
+    "Player10",
+    "Player29"
+  ],
+  "Player8": [
+    "Player9",
+    "Player21",
+    "Player36",
+    "Player47"
+  ],
+  "Player9": [
+    "Player52",
+    "Player2"
+  ],
+  "Player10": [
+    "Player14",
+    "Player20",
+    "Player25"
+  ],
+  "Player11": [
+    "Player18",
+    "Player30",
+    "Player42",
+    "Player51",
+    "Player72"
+  ],
+  "Player12": [],
+  "Player13": [
+    "Player17"
+  ],
+  "Player14": [
+    "Player55",
+    "Player72",
+    "Player12"
+  ],
+  "Player15": [],
+  "Player16": [
+    "Player32",
+    "Player78",
+    "Player47",
+    "Player50"
+  ],
+  "Player17": [
+    "Player26",
+    "Player53"
+  ],
+  "Player18": [
+    "Player19",
+    "Player24",
+    "Player28"
+  ],
+  "Player19": [
+    "Player22",
+    "Player49",
+    "Player58"
+  ],
+  "Player20": [
+    "Player53"
+  ],
+  "Player21": [
+    "Player23",
+    "Player37",
+    "Player45",
+    "Player8"
+  ],
+  "Player22": [],
+  "Player23": [
+    "Player44"
+  ],
+  "Player24": [
+    "Player31"
+  ],
+  "Player25": [],
+  "Player26": [
+    "Player46"
+  ],
+  "Player27": [
+    "Player35",
+    "Player59",
+    "Player63",
+    "Player67"
+  ],
+  "Player28": [
+    "Player33",
+    "Player41",
+    "Player66"
+  ],
+  "Player29": [
+    "Player42",
+    "Player54"
+  ],
+  "Player30": [
+    "Player31"
+  ],
+  "Player31": [
+    "Player28"
+  ],
+  "Player32": [
+    "Player77"
+  ],
+  "Player33": [],
+  "Player34": [],
+  "Player35": [
+    "Player65"
+  ],
+  "Player36": [
+    "Player43",
+    "Player57",
+    "Player21"
+  ],
+  "Player37": [
+    "Player38",
+    "Player62",
+    "Player14"
+  ],
+  "Player38": [],
+  "Player39": [
+    "Player70"
+  ],
+  "Player40": [
+    "Player80"
+  ],
+  "Player41": [
+    "Player21"
+  ],
+  "Player42": [
+    "Player50",
+    "Player27"
+  ],
+  "Player43": [
+    "Player54",
+    "Player76"
+  ],
+  "Player44": [],
+  "Player45": [
+    "Player61"
+  ],
+  "Player46": [],
+  "Player47": [
+    "Player60"
+  ],
+  "Player48": [
+    "Player49"
+  ],
+  "Player49": [
+    "Player40",
+    "Player1"
+  ],
+  "Player50": [
+    "Player68"
+  ],
+  "Player51": [
+    "Player27"
+  ],
+  "Player52": [],
+  "Player53": [
+    "Player46"
+  ],
+  "Player54": [],
+  "Player55": [
+    "Player5"
+  ],
+  "Player56": [
+    "Player74"
+  ],
+  "Player57": [
+    "Player20"
+  ],
+  "Player58": [
+    "Player36"
+  ],
+  "Player59": [
+    "Player64",
+    "Player61",
+    "Player63"
+  ],
+  "Player60": [
+    "Player73",
+    "Player38",
+    "Player12"
+  ],
+  "Player61": [],
+  "Player62": [
+    "Player70"
+  ],
+  "Player63": [
+    "Player70",
+    "Player79",
+    "Player2"
+  ],
+  "Player64": [
+    "Player1"
+  ],
+  "Player65": [
+    "Player80",
+    "Player44"
+  ],
+  "Player66": [
+    "Player25"
+  ],
+  "Player67": [],
+  "Player68": [],
+  "Player69": [
+    "Player11"
+  ],
+  "Player70": [
+    "Player6"
+  ],
+  "Player71": [],
+  "Player72": [
+    "Player75",
+    "Player43"
+  ],
+  "Player73": [],
+  "Player74": [
+    "Player46"
+  ],
+  "Player75": [],
+  "Player76": [
+    "Player19"
+  ],
+  "Player77": [
+    "Player5"
+  ],
+  "Player78": [
+    "Player17"
+  ],
+  "Player79": [
+    "Player32"
+  ],
+  "Player80": []
+}
