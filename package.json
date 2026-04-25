@@ -33,6 +33,7 @@
     "discord.js": "^14.22.1",
     "dotenv": "^17.2.2",
     "minecraft-server-util": "^5.4.4",
+    "mysql2": "^3.22.2",
     "rcon-client": "^4.2.5"
   },
   "engines": {

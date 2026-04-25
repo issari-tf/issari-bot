@@ -70,11 +70,22 @@ async function refreshLeaderboard(client) {
 }
 
 // ----------------------------------------------------------------------
+//  Database configuration (same as in databases.cfg)
+// ----------------------------------------------------------------------
+const dbConfig = {
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASS || '',
+    database: process.env.DB_NAME || 'blue_stats',
+    waitForConnections: true,
+    connectionLimit: 5
+};
+
+// ----------------------------------------------------------------------
 //  Create managers
 // ----------------------------------------------------------------------
-const winTreeManager = new WinTreeManager();
-const steamLinksManager = new SteamLinksManager();
-
+const steamLinksManager = new SteamLinksManager();  // may later be replaced with MySQL version
+const winTreeManager = new WinTreeManager(dbConfig, steamLinksManager);
 // ----------------------------------------------------------------------
 //  Discord client setup
 // ----------------------------------------------------------------------
