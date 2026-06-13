@@ -9,6 +9,7 @@ const SteamLinksManager = require('./steam_links');
 const { fetchMinecraftStatus, fetchTF2Status } = require('./server_status');
 const { startScheduledPings } = require('./scheduled_pings');
 const buildCommands = require('./commands');
+const { recordMessage, startGuildStatsReporter } = require('./feedbackMonitor');
 
 // ----------------------------------------------------------------------
 //  Persistent Status Message IDs
@@ -98,6 +99,8 @@ const commands = buildCommands(client, winTreeManager, steamLinksManager, leader
 
 client.once('ready', async () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
+
+    startGuildStatsReporter(client);
 
     loadStatusMessageIds();
 
@@ -211,6 +214,7 @@ client.once('ready', async () => {
 
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
+    recordMessage(message);
     const cmdName = Object.keys(commands).find(cmd => message.content === cmd || message.content.startsWith(`${cmd} `));
     if (cmdName) {
         try {

@@ -31,6 +31,13 @@ class SteamLinksManager {
     getSteamId(username) {
         return this.data[username] || null;
     }
+
+    getName(steamId) {
+        for (const [username, id] of Object.entries(this.data)) {
+            if (id === steamId) return username;
+        }
+        return null;
+    }
 }
 
 module.exports = SteamLinksManager;
