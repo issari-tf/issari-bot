@@ -16,6 +16,53 @@ module.exports = (client, winTreeManager, steamLinksManager, leaderboardMessageI
             description: 'Responds with Pong! 🏓',
             execute: async (message) => message.reply('Pong! 🏓'),
         },
+        '!connect': {
+            description: 'Get the IP and connect info for the TF2 server.',
+            execute: async (message) => {
+                const address = '72.60.111.15:27030';
+                const embed = new EmbedBuilder()
+                    .setTitle('🎮 Join the Issari TF2 Server')
+                    .setDescription(
+                        `**Mode:** VSH (Versus Saxton Hale)\n\n` +
+                        `**Server address:**\n\`\`\`\nconnect ${address}\n\`\`\`\n` +
+                        `Or click to connect via Steam: [steam://connect/${address}](steam://connect/${address})`
+                    )
+                    .setColor('#5865F2')
+                    .setTimestamp()
+                    .setFooter(config.botFooter);
+                const inviteButton = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setLabel('Join our Discord').setStyle(ButtonStyle.Link).setURL('https://discord.gg/pCMwuQHqwW')
+                );
+                await message.channel.send({ embeds: [embed], components: [inviteButton] });
+            },
+        },
+        '!join': {
+            description: 'Alias for !connect — get the TF2 server IP.',
+            execute: async (message) => commands['!connect'].execute(message),
+        },
+        '!sourcemod': {
+            description: 'Get the guide for setting up SourceMod plugin development on Windows.',
+            execute: async (message) => {
+                const embed = new EmbedBuilder()
+                    .setTitle('🛠️ Develop SourceMod Plugins for Issari TF2')
+                    .setDescription(
+                        'This is a **community open server** — anyone can write and submit SourceMod plugins!\n\n' +
+                        'The full step-by-step guide covers setting up a local TF2 test server on Windows, ' +
+                        'installing Metamod:Source + SourceMod, configuring VS Code for SourcePawn, and ' +
+                        'compiling/testing your first plugin — plus how to submit it for review.'
+                    )
+                    .setColor('#f1c40f')
+                    .setTimestamp()
+                    .setFooter(config.botFooter);
+                const guideButton = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setLabel('View Setup Guide')
+                        .setStyle(ButtonStyle.Link)
+                        .setURL('https://github.com/issari-tf/issari-bot/blob/main/docs/sourcemod-windows-dev-guide.md')
+                );
+                await message.channel.send({ embeds: [embed], components: [guideButton] });
+            },
+        },
         '!mcplayers': {
             description: 'Show active Minecraft players.',
             execute: async (message) => {
