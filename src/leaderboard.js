@@ -430,6 +430,27 @@ class WinTreeManager {
         this.cache.stats = null; // invalidate cache
     }
 
+    // [Admin] Record `count` random win/loss results between existing linked players.
+    async addRandomWins(count) {
+        const players = await this.getAllPlayers();
+        if (players.length < 2) return 0;
+        let added = 0;
+        for (let i = 0; i < count; i++) {
+            const winner = players[Math.floor(Math.random() * players.length)];
+            let loser = players[Math.floor(Math.random() * players.length)];
+            if (loser === winner) continue;
+            await this.addWin(winner, loser);
+            added++;
+        }
+        return added;
+    }
+
+    // [Admin] Force a fresh fetch of stats on the next leaderboard render.
+    resetToDummy() {
+        this.cache.stats = null;
+        this.cache.lastFetch = 0;
+    }
+
     async close() {
         if (this.pool) await this.pool.end();
     }

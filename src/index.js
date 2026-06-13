@@ -203,11 +203,10 @@ client.once('ready', async () => {
             await leaderboardMsg.edit({ files: [{ attachment: buffer, name: 'leaderboard.png' }] });
         }
 
-        // Auto‑refresh: add 2-5 random wins every leaderboardRefreshMs
+        // Auto‑refresh: redraw the leaderboard image periodically (e.g. avatar/name changes)
         setInterval(async () => {
-            winTreeManager.addRandomWins(2 + Math.floor(Math.random() * 4));
             await refreshLeaderboard(client);
-            console.log('Leaderboard auto‑refreshed with random wins.');
+            console.log('Leaderboard auto-refreshed.');
         }, config.leaderboardRefreshMs);
     }
 });
