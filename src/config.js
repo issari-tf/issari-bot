@@ -8,15 +8,15 @@ module.exports = {
         port: parseInt(process.env.MC_RCON_PORT),
         password: process.env.MC_RCON_PASS,
     },
+    // Source A2S query targets for the TF2 status embeds. Both currently point
+    // at the same live server (the old separate HighTower/VSH instances are gone).
     tfRcon0: {
-        host: process.env.TF_RCON_HOST0,
-        port: parseInt(process.env.TF_RCON_PORT0),
-        password: process.env.TF_RCON_PASS0,
+        host: process.env.TF_QUERY_HOST0 || '72.60.111.15',
+        port: parseInt(process.env.TF_QUERY_PORT0 || '27030', 10),
     },
     tfRcon1: {
-        host: process.env.TF_RCON_HOST1,
-        port: parseInt(process.env.TF_RCON_PORT1),
-        password: process.env.TF_RCON_PASS1,
+        host: process.env.TF_QUERY_HOST1 || '72.60.111.15',
+        port: parseInt(process.env.TF_QUERY_PORT1 || '27030', 10),
     },
     mcHost: process.env.MC_HOST || process.env.MC_RCON_HOST,
     mcPort: parseInt(process.env.MC_PORT || '25565', 10),

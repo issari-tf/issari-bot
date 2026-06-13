@@ -1,4 +1,5 @@
 const { Rcon } = require('rcon-client');
+const { GameDig } = require('gamedig');
 const { status } = require('minecraft-server-util');
 const { EmbedBuilder } = require('discord.js');
 const config = require('./config');
@@ -75,23 +76,13 @@ async function fetchMinecraftStatus(alertChannel = null, imageSource = null) {
     return embed;
 }
 
-async function fetchTF2Status(rconConfig, channelForAlerts = null, mapImageSource = null, serverLabel = '') {
+async function fetchTF2Status(queryConfig, channelForAlerts = null, mapImageSource = null, serverLabel = '') {
     try {
-        const rcon = new Rcon(rconConfig);
-        await rcon.connect();
-        const response = await rcon.send('status');
-        await rcon.end();
-        const playerLines = response.split('\n').filter(line => /^#\s+\d+/.test(line));
-        const players = playerLines.map(line => {
-            const parts = line.trim().split(/\s+/);
-            return parts[2]?.replace(/^"|"$/g, '') || 'Unknown';
-        }).filter(Boolean);
-        const hostnameMatch = response.match(/hostname:\s(.+)/i);
-        const hostname = hostnameMatch ? hostnameMatch[1] : 'Unknown Host';
-        const mapMatch = response.match(/map\s+:\s(\S+)/i);
-        const mapName = mapMatch ? mapMatch[1] : 'Unknown Map';
-        const maxPlayersMatch = response.match(/maxplayers\s+:\s(\d+)/i);
-        const maxPlayers = maxPlayersMatch ? parseInt(maxPlayersMatch[1], 10) : 100;
+        const state = await GameDig.query({ type: 'teamfortress2', host: queryConfig.host, port: queryConfig.port });
+        const players = state.players.map(p => p.name).filter(Boolean);
+        const hostname = state.name || 'Unknown Host';
+        const mapName = state.map || 'Unknown Map';
+        const maxPlayers = state.maxplayers || 24;
         let largeImageUrl;
         if (Array.isArray(mapImageSource) && mapImageSource.length) {
             largeImageUrl = mapImageSource[Math.floor(Math.random() * mapImageSource.length)];
@@ -108,7 +99,7 @@ async function fetchTF2Status(rconConfig, channelForAlerts = null, mapImageSourc
             .setImage(largeImageUrl)
             .setThumbnail('https://wiki.teamfortress.com/w/images/thumb/9/9e/TF2_logo.svg/200px-TF2_logo.svg.png')
             .addFields(
-                { name: '🌐 Server IP', value: `${rconConfig.host}:${rconConfig.port}`, inline: true },
+                { name: '🌐 Server IP', value: `${queryConfig.host}:${queryConfig.port}`, inline: true },
                 { name: '🗺️ Current Map', value: mapName, inline: true },
                 { name: '👥 Players', value: `${players.length} / ${maxPlayers}`, inline: true },
                 { name: '📋 Player List', value: formatPlayerList(players), inline: false }
@@ -120,11 +111,11 @@ async function fetchTF2Status(rconConfig, channelForAlerts = null, mapImageSourc
         }
         return embed;
     } catch (err) {
-        console.error(`TF2 RCON Error for ${rconConfig.host}:`, err);
+        console.error(`TF2 query error for ${queryConfig.host}:${queryConfig.port}:`, err);
         return new EmbedBuilder()
             .setTitle('❌ TF2 Server Status')
             .setColor('#e74c3c')
-            .setDescription('Could not fetch server status – RCON may be unreachable or password wrong.')
+            .setDescription('Could not fetch server status – the server may be offline or unreachable.')
             .setFooter(config.botFooter)
             .setTimestamp();
     }
